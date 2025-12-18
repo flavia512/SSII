@@ -1,16 +1,18 @@
 from selenium import webdriver
-from selenium.webdriver.common.by import By
 from selenium.webdriver.edge.service import Service
 from webdriver_manager.microsoft import EdgeChromiumDriverManager
 import time
 
-options = webdriver.EdgeOptions()
-options.add_argument("--headless")  # quítalo si quieres ver el navegador
-
 driver = webdriver.Edge(
-    service=Service(EdgeChromiumDriverManager().install()),
-    options=options
+    service=Service(EdgeChromiumDriverManager().install())
 )
+
+driver.get("https://news.bitcoin.com/es/") # esto entra a un enlace completo
+
+
+
+
+
 
 # EJEMPLO: lista de links (esto vendría del paso anterior)
 urls = [
