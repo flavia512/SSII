@@ -1,4 +1,4 @@
 https://news.bitcoin.com/es/category/security
+https://news.bitcoin.com/es/category/fintech
 https://news.bitcoin.com/es/category/defi
-https://news.bitcoin.com/es/category/security
-https://news.bitcoin.com/es/category/defi
+https://news.bitcoin.com/es/category/technology
