@@ -1,0 +1,13 @@
+# Scraping
+selenium
+
+# Procesamiento de Datos y Matemáticas
+pandas
+numpy
+
+# Procesamiento de Lenguaje Natural (NLP) y Machine Learning
+scikit-learn
+nltk
+
+# Opcional: Para la parte de Embeddings (Redes Neuronales)
+sentence-transformers
