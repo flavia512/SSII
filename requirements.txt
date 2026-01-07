@@ -11,3 +11,6 @@ nltk
 
 # Opcional: Para la parte de Embeddings (Redes Neuronales)
 sentence-transformers
+
+# Interfaz Web
+streamlit
