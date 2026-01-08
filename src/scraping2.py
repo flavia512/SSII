@@ -120,59 +120,57 @@ for categoria in CLASIFICACION:
     with open(enlaceen_path, "r", encoding="utf-8") as f:
         enlaces_noticias = [line.strip() for line in f if line.strip()]
 
+
     noticias_guardadas = set()
-    noticias_guardadas_count = 0
 
     for url in enlaces_noticias:
-        if noticias_guardadas_count < 5:
+        try:
+            driver2 = webdriver.Edge(
+                service=Service(os.path.join(os.getcwd(), "msedgedriver.exe")),
+                options=options
+            )
+            driver2.get(url)
+            time.sleep(4)
+
+            # Fecha de publicación
             try:
-                driver2 = webdriver.Edge(
-                    service=Service(os.path.join(os.getcwd(), "msedgedriver.exe")),
-                    options=options
-                )
-                driver2.get(url)
-                time.sleep(4)
+                fecha_pub = driver2.find_element(By.CSS_SELECTOR, "div.a_md_f").text.strip()
+            except:
+                fecha_pub = "Sin fecha de publicación"
 
-                # Fecha de publicación
-                try:
-                    fecha_pub = driver2.find_element(By.CSS_SELECTOR, "div.a_md_f").text.strip()
-                except:
-                    fecha_pub = "Sin fecha de publicación"
+            # Título
+            try:
+                titulo_elem = driver2.find_element(By.CSS_SELECTOR, "h1.a_t")
+                titulo = titulo_elem.text.strip()
+                nombre_archivo = "_".join(titulo.split()[:4]).replace("/", "-").replace("\\", "-")
+            except:
+                titulo = "Sin título"
+                nombre_archivo = "noticia_sin_titulo"
 
-                # Título
-                try:
-                    titulo_elem = driver2.find_element(By.CSS_SELECTOR, "h1.a_t")
-                    titulo = titulo_elem.text.strip()
-                    nombre_archivo = "_".join(titulo.split()[:4]).replace("/", "-").replace("\\", "-")
-                except:
-                    titulo = "Sin título"
-                    nombre_archivo = "noticia_sin_titulo"
+            # Contexto
+            try:
+                contexto_elem = driver2.find_element(By.CSS_SELECTOR, "p.a_st")
+                contexto = contexto_elem.text.strip()
+            except:
+                contexto = "Sin contexto"
 
-                # Contexto
-                try:
-                    contexto_elem = driver2.find_element(By.CSS_SELECTOR, "p.a_st")
-                    contexto = contexto_elem.text.strip()
-                except:
-                    contexto = "Sin contexto"
+            # Fecha de extracción
+            fecha_extraccion = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
-                # Fecha de extracción
-                fecha_extraccion = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            # Evitar duplicados por título y archivo
+            noticia_path = os.path.join(noticias_folder, f"{nombre_archivo}.txt")
+            if titulo not in noticias_guardadas and not os.path.exists(noticia_path):
+                with open(noticia_path, "w", encoding="utf-8") as nf:
+                    nf.write(f"{fecha_pub};{titulo};{contexto};{fecha_extraccion}\n")
+                print(f"Guardada noticia: {noticia_path}")
+                noticias_guardadas.add(titulo)
 
-                # Evitar duplicados por título y archivo
-                noticia_path = os.path.join(noticias_folder, f"{nombre_archivo}.txt")
-                if titulo not in noticias_guardadas and not os.path.exists(noticia_path):
-                    with open(noticia_path, "w", encoding="utf-8") as nf:
-                        nf.write(f"{fecha_pub};{titulo};{contexto};{fecha_extraccion}\n")
-                    print(f"Guardada noticia: {noticia_path}")
-                    noticias_guardadas.add(titulo)
-                    noticias_guardadas_count += 1
-
+            driver2.quit()
+        except Exception as e:
+            print(f"Error procesando noticia {url}: {e}")
+            try:
                 driver2.quit()
-            except Exception as e:
-                print(f"Error procesando noticia {url}: {e}")
-                try:
-                    driver2.quit()
-                except:
-                    pass
+            except:
+                pass
 
 driver.quit()
