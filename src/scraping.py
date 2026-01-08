@@ -22,7 +22,7 @@ driver.get("https://news.bitcoin.com/es/")
 
 wait = WebDriverWait(driver, 10)
 
-# Aceptar cookies
+# Rechazar cookies
 try:
     boton_rechazar = wait.until(
         EC.element_to_be_clickable(
