@@ -1,6 +1,7 @@
 # app.py
 import os
 import sys
+import re
 import pandas as pd
 import streamlit as st
 
@@ -10,6 +11,7 @@ if SRC_DIR not in sys.path:
     sys.path.insert(0, SRC_DIR)
 
 NOTICIAS_DIR_DEFAULT = os.path.join(BASE_DIR, "noticias")
+
 
 @st.cache_resource(show_spinner=False)
 def build_engine(noticias_dir: str):
@@ -32,6 +34,20 @@ def _format_date_maybe(value) -> str:
         return dt.strftime("%d/%m/%Y")
     except Exception:
         return str(value)
+
+
+def _extract_id_from_label(label: str) -> int | None:
+    """
+    Extrae el id desde un label tipo: "[123] (cat) titulo..."
+    Devuelve None si no encuentra el patrón.
+    """
+    if label is None:
+        return None
+    m = re.search(r"\[(\d+)\]", str(label))
+    if not m:
+        return None
+    return int(m.group(1))
+
 
 def main():
     st.set_page_config(page_title="Recomendador de Noticias", layout="wide")
@@ -102,16 +118,23 @@ def main():
             st.subheader("Lista de noticias")
 
             search = st.text_input("Buscar (título o cuerpo)", value="")
+
             if search.strip():
+                # regex=False para tratar el texto literalmente (frases, símbolos, etc.)
                 mask = (
-                    df["titulo"].astype(str).str.contains(search, case=False, na=False)
-                    | df["cuerpo"].astype(str).str.contains(search, case=False, na=False)
+                    df["titulo"].astype(str).str.contains(search, case=False, na=False, regex=False)
+                    | df["cuerpo"].astype(str).str.contains(search, case=False, na=False, regex=False)
                 )
                 view = df[mask].copy()
             else:
-                view = df
+                view = df.copy()
 
             st.caption(f"Mostrando: {len(view)} / {len(df)}")
+
+            # Si no hay resultados, no intentes construir selectbox ni hacer split
+            if view.empty:
+                st.warning("No hay resultados para esa búsqueda.")
+                st.stop()
 
             # Label legible (id + título + categoría)
             view = view.reset_index(drop=True)
@@ -120,11 +143,21 @@ def main():
                 axis=1,
             )
 
-            selected_label = st.selectbox("Selecciona una noticia", view["label"].tolist())
-            selected_id = int(selected_label.split("]")[0].replace("[", "").strip())
+            labels = view["label"].tolist()
+            selected_label = st.selectbox("Selecciona una noticia", labels)
+
+            selected_id = _extract_id_from_label(selected_label)
+            if selected_id is None:
+                st.error("No pude extraer el ID de la noticia seleccionada.")
+                st.stop()
 
         with col_right:
-            sel = df[df["id"] == selected_id].iloc[0]
+            selected_rows = df[df["id"] == selected_id]
+            if selected_rows.empty:
+                st.error(f"No existe una noticia con id={selected_id} en el dataset.")
+                st.stop()
+
+            sel = selected_rows.iloc[0]
 
             st.subheader("Detalle de la noticia seleccionada")
             st.markdown(f"**Título:** {sel.get('titulo','')}")
@@ -221,6 +254,7 @@ def main():
                 with st.expander("Ver contenido"):
                     st.write(body)
                 st.divider()
+
 
 if __name__ == "__main__":
     main()
