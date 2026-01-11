@@ -126,19 +126,23 @@ class MotorRecomendacion:
         indices_ordenados = similitudes.argsort()[::-1]
         
         resultados = []
-        for idx in indices_ordenados:
-            if exclude_index is not None and idx == exclude_index:
-                continue # No recomendarse a sí mismo
+        i = 0
+        total_docs = len(indices_ordenados)
+        
+        # REFACTORIZADO: Usamos un while con condición compuesta para evitar 'break' y 'continue' (volvemos a resubir por este problema)
+        while len(resultados) < top_n and i < total_docs:
+            idx = indices_ordenados[i]
             
-            resultados.append({
-                "id": self.df.iloc[idx]['id'],
-                "titulo": self.df.iloc[idx]['titulo'],
-                "similitud": round(float(similitudes[idx]), 4),
-                "contenido_preview": self.df.iloc[idx]['cuerpo'][:150] + "..."
-            })
+            # Solo procesamos si NO es el índice a excluir
+            if exclude_index is None or idx != exclude_index:
+                resultados.append({
+                    "id": self.df.iloc[idx]['id'],
+                    "titulo": self.df.iloc[idx]['titulo'],
+                    "similitud": round(float(similitudes[idx]), 4),
+                    "contenido_preview": self.df.iloc[idx]['cuerpo'][:150] + "..."
+                })
             
-            if len(resultados) >= top_n:
-                break
+            i += 1
                 
         return resultados
 
