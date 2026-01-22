@@ -62,7 +62,7 @@ for h2 in all_h2s:
         nombre_categoria = h2.text.strip().lower()
         href_categoria = parent_a.get_attribute("href")
         print(f"h2: {nombre_categoria} | Enlace: {href_categoria}")
-        # Clasificar y guardar (sin break)
+        
         for cat, palabras in CLASIFICACION.items():
             if any(palabra in nombre_categoria for palabra in palabras):
                 if href_categoria not in enlaces_por_categoria[cat]:
