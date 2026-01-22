@@ -1,8 +1,8 @@
 import os
 import pandas as pd
 import numpy as np
-import nltk
-from nltk.corpus import stopwords
+import nltk # para procesar texto
+from nltk.corpus import stopwords #palabras que no aportan significado
 from nltk.tokenize import word_tokenize
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
@@ -12,7 +12,7 @@ try:
     EMBEDDINGS_AVAILABLE = True
 except ImportError:
     EMBEDDINGS_AVAILABLE = False
-    print("Advertencia: sentence-transformers no está instalado. La parte opcional no funcionará.")
+    print("Advertencia: sentence-transformers no está instalado.")
 
 # Descargar recursos necesarios de NLTK (solo la primera vez)
 nltk.download('punkt', quiet=True)

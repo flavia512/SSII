@@ -97,7 +97,7 @@ for cat, enlaces in enlaces_por_categoria.items():
 
     # Ahora, para cada enlace, entra y guarda todos los <a href="..."> dentro del div.sc-bfabSb.gvquir en enlaceen.txt, evitando duplicados
     enlaces_extraidos = set()
-    max_paginas = 3  # Cambia este valor si quieres más o menos páginas
+    max_paginas = 3  
 
     for enlace in enlaces:
         for pagina in range(1, max_paginas + 1):
